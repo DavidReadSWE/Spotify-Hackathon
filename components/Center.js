@@ -5,8 +5,10 @@ import { ChevronDownIcon } from "@heroicons/react/outline";
 import { shuffle } from "lodash";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { playlistIdState, playlistState } from "../atoms/playlistAtoms";
+import { favoritesState } from "../atoms/favoritesAtom";
 import useSpotify from "../hooks/useSpotify";
 import Songs from "./Songs";
+import Favorites from "./Favorites";
 import { signOut } from "next-auth/react";
 
 const colors = [
@@ -25,6 +27,7 @@ function Center() {
   const [color, setColor] = useState(null);
   const playlistId = useRecoilValue(playlistIdState);
   const [playlist, setPlaylist] = useRecoilState(playlistState);
+  const showFavorites = useRecoilValue(favoritesState);
 
   useEffect(() => {
     setColor(shuffle(colors).pop());
@@ -40,6 +43,7 @@ function Center() {
   }, [spotifyApi, playlistId]);
 
   console.log(playlist);
+  console.log(showFavorites);
 
   return (
     <div className="flex-grow h-screen overflow-y-scroll scrollbar-hide">
@@ -63,20 +67,22 @@ function Center() {
       >
         <img
           className="h-44 w-44 shadow-2xl"
-          src={playlist?.images?.[0]?.url}
+          src={
+            showFavorites
+              ? "https://i.pinimg.com/originals/75/5c/12/755c129d32c83e0d791c097acdbe33f1.jpg"
+              : playlist?.images?.[0]?.url
+          }
           alt=""
         />
         <div>
           <p>PLAYLIST</p>
           <h1 className="text-2xl md:text-3xl xl:text-5xl font-bold">
-            {playlist?.name}
+            {showFavorites ? "Liked Songs" : playlist?.name}
           </h1>
         </div>
       </section>
 
-      <div>
-        <Songs />
-      </div>
+      <div>{showFavorites ? <Favorites /> : <Songs />}</div>
     </div>
   );
 }

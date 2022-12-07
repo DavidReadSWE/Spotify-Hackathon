@@ -11,12 +11,15 @@ import { signOut, useSession } from "next-auth/react";
 import useSpotify from "./../hooks/useSpotify";
 import { useRecoilState } from "recoil";
 import { playlistIdState } from "../atoms/playlistAtoms";
+import { favoritesState } from "../atoms/favoritesAtom";
 
 function Sidebar() {
   const spotifyApi = useSpotify();
   const { data: session, status } = useSession();
   const [playlists, setPlaylists] = useState([]);
   const [playlistId, setPlaylistId] = useRecoilState(playlistIdState);
+  const [favorites, setFavorites] = useState([]);
+  const [showFavorites, setShowFavorites] = useRecoilState(favoritesState);
 
   console.log("YOU PICKED PLAYLIST", playlistId);
 
@@ -29,6 +32,14 @@ function Sidebar() {
   }, [session, spotifyApi]);
 
   // useEffect(() => {
+  //   if (spotifyApi.getAccessToken()) {
+  //     spotifyApi.getMySavedTracks().then((data) => {
+  //       setFavorites(data.body.items);
+  //     });
+  //   }
+  // }, [session, spotifyApi]);
+
+  // useEffect(() => {
   //   if (session) {
   //     const options = {
   //       method: "GET",
@@ -36,14 +47,15 @@ function Sidebar() {
   //         Authorization: `Bearer ${session.user.accessToken}`,
   //       },
   //     };
-  //     fetch("https://api.spotify.com/v1/me/playlists", options)
+  //     fetch("https://api.spotify.com/v1/me/tracks", options)
   //       .then((response) => response.json())
-  //       .then((response) => setPlaylists(response.items))
+  //       .then((response) => setFavorites(response.items))
   //       .catch((err) => console.error(err));
   //   }
   // }, [session]);
 
   console.log(playlists);
+  console.log("FAVORITES", favorites);
 
   return (
     <div className="text-gray-500 p-5 text-xs lg:text-sm border-r border-gray-900 overflow-y-scroll scrollbar-hide h-screen sm:max-w-[12rem] lg:max-w-[15rem] hidden md:inline-flex pb-36">
@@ -66,7 +78,10 @@ function Sidebar() {
           <PlusCircleIcon className="h-5 w-5" />
           <p>Create Playlist</p>
         </button>
-        <button className="flex items-center space-x-2 hover:text-white">
+        <button
+          className="flex items-center space-x-2 hover:text-white"
+          onClick={() => setShowFavorites(true)}
+        >
           <HeartIcon className="h-5 w-5" />
           <p>Liked Songs</p>
         </button>
@@ -79,7 +94,10 @@ function Sidebar() {
         {playlists.map((playlist) => (
           <p
             key={playlist.id}
-            onClick={() => setPlaylistId(playlist.id)}
+            onClick={() => {
+              setPlaylistId(playlist.id);
+              setShowFavorites(false);
+            }}
             className="cursor-pointer hover:text-white"
           >
             {playlist.name}

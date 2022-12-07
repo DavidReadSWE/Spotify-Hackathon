@@ -60,8 +60,11 @@ function Player() {
     }
   }, [volume]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const debouncedAdjustVolume = useCallback(debounce((volume) => spotifyApi.setVolume(volume).catch((err) => {}), 500),[]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedAdjustVolume = useCallback(
+    debounce((volume) => spotifyApi.setVolume(volume).catch((err) => {}), 500),
+    []
+  );
 
   //   useEffect(() => {
   //     if (spotifyApi.getAccessToken() && !currentTrackId) {
@@ -80,6 +83,21 @@ function Player() {
   //       debouncedAdjustVolume(volume);
   //     }
   //   }, [volume]);
+
+  const handleSkipToNext = () => {
+    const options = {
+      method: "POST",
+      headers: {
+        Authorization:
+          "Bearer BQAtNZCE-mmUEK_r13Y0z0QJPd8vmy8_jVdbtjxJeLmSqEf9ZYhuUlg11ZGKtFXuV_GdABotl7_MbZu-mA_iBBC_uGbBgfLwSwgR1xUcltAREYKAh0tBV8Ges3YL4Vd7TVHT1OdAOGTg8aP2O2IUv8J6IPTZzO-8f_Wbkv9Xhj9dEE0j2aG3txlCP5XhlU0V76SZ1xTLXIPkblJxcNhDXWahAvI7wo81N8jsHNSJxMYvn-B0",
+      },
+    };
+
+    fetch("https://api.spotify.com/v1/me/player/next", options)
+      .then((response) => response.json())
+      .then((response) => console.log(response))
+      .catch((err) => console.error(err));
+  };
 
   return (
     <div className="h-24 bg-gradient-to-b from-black to-gray-900 text-white grid grid-cols-3 text-xs md:text-base px-2 md:px-8">
@@ -101,7 +119,7 @@ function Player() {
         <SwitchHorizontalIcon className="button" />
         <RewindIcon
           className="button"
-          //   onClick={() => spotifyApi.skipToPrevious()}
+          onClick={() => spotifyApi.skipToPrevious()}
         />
 
         {isPlaying ? (
@@ -110,7 +128,10 @@ function Player() {
           <PlayIcon onClick={handlePlayPause} className="button w-10 h-10" />
         )}
 
-        <FastForwardIcon className="button" />
+        <FastForwardIcon
+          className="button"
+          onClick={handleSkipToNext}
+        />
         <ReplyIcon className="button" />
       </div>
 
